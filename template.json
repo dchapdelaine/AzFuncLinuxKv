@@ -14,9 +14,6 @@
         "location": {
             "type": "String"
         },
-        "hostingEnvironment": {
-            "type": "String"
-        },
         "serverFarmResourceGroup": {
             "type": "String"
         },
@@ -26,8 +23,22 @@
     },
     "resources": [
         {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2015-04-01",
+            "name": "[parameters('hostingPlanName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "name": "[parameters('hostingPlanName')]",
+                "computeMode": "Dynamic",
+                "sku": "Dynamic"
+            }
+        },
+        {
             "type": "Microsoft.Web/sites",
             "kind": "functionapp",
+            "dependsOn": [
+              "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+            ],
             "name": "[parameters('name')]",
             "apiVersion": "2016-03-01",
             "location": "[parameters('location')]",
@@ -39,8 +50,12 @@
                             "value": "dotnet"
                         },
                         {
+                            "name": "AzureWebJobsDashboard",
+                            "value": "[parameters('storageConnectionString')]"
+                        },
+                        {
                             "name": "AzureWebJobsStorage",
-                            "value": "parameters('storageConnectionString')"
+                            "value": "[parameters('storageConnectionString')]"
                         },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
@@ -49,19 +64,13 @@
                         {
                             "name": "WEBSITE_NODE_DEFAULT_VERSION",
                             "value": "8.11.1"
-                        },
-                        {
-                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "f5a7e2d8-5612-4181-8c9b-61495cb5c9d5"
                         }
                     ],
-                    "alwaysOn": true,
                     "linuxFxVersion": "DOCKER|microsoft/azure-functions-dotnet-core2.0:2.0"
                 },
                 "name": "[parameters('name')]",
                 "clientAffinityEnabled": false,
-                "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
-                "hostingEnvironment": "[parameters('hostingEnvironment')]"
+                "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
             }
         }
     ]

@@ -23,7 +23,7 @@ fi
 az group create --name $RESOURCE_GROUP --location $LOCATION
 
 # Create the app service plan that will host our Function App
-az appservice plan create --name $APP_PLAN --resource-group $RESOURCE_GROUP --sku B1 --is-linux
+#az appservice plan create --name $APP_PLAN --resource-group $RESOURCE_GROUP --sku Dynamic --is-linux
 
 # Create the storage account that will serve as storage for our Function App
 az storage account create --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --sku Standard_LRS
@@ -38,8 +38,7 @@ az group deployment create --name "Deploy$FUNCTION_APP" --template-file template
     --parameters hostingPlanName=$APP_PLAN \
     --parameters location=$LOCATION \
     --parameters serverFarmResourceGroup=$RESOURCE_GROUP \
-    --parameters subscriptionId=$SUB_ID \
-    --parameters hostingEnvironment=""
+    --parameters subscriptionId=$SUB_ID
 
 # Activate
 PRINCIPAL_ID=$(az functionapp identity assign --name $FUNCTION_APP --resource-group $RESOURCE_GROUP --query principalId | xargs)
